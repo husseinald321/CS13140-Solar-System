@@ -14,6 +14,21 @@ const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xfff700 });
 
 const sun = new THREE.Mesh(sphereGeometry, sunMaterial);
 scene.add(sun);
+
+sun.scale.set(5, 5, 5);
+
+const earthMaterial = new THREE.MeshBasicMaterial({ color: 'blue' });
+const earth = new THREE.Mesh(sphereGeometry, earthMaterial);
+
+earth.position.x = 10;
+
+scene.add(earth);
+
+const MoonMaterial = new THREE.MeshBasicMaterial({ color: 'gray' });
+const moon = new THREE.Mesh(sphereGeometry, MoonMaterial);
+moon.scale.setScalar(0.3);
+moon.position.x = 2;
+earth.add(moon);
 // initialize the camera
 const camera = new THREE.PerspectiveCamera(
   35,
