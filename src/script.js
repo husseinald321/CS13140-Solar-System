@@ -21,12 +21,14 @@ const mercuryTexture = textureLoader.load("/textures/2k_mercury.jpg");
 const venusTexture = textureLoader.load("/textures/2k_venus_surface.jpg");
 const earthTexture = textureLoader.load("/textures/2k_earth_daymap.jpg");
 const marsTexture = textureLoader.load("/textures/2k_mars.jpg");
+const moonTexture = textureLoader.load("/textures/2k_moon.jpg");
 
 //add materials
 const mercuryMaterial = new THREE.MeshStandardMaterial({ map: mercuryTexture });
 const venusMaterial = new THREE.MeshStandardMaterial({ map: venusTexture });
 const earthMaterial = new THREE.MeshStandardMaterial({ map: earthTexture });
 const marsMaterial = new THREE.MeshStandardMaterial({ map: marsTexture });
+const moonMaterial = new THREE.MeshStandardMaterial({ map: moonTexture});
 
 
 // add stuff here
@@ -52,7 +54,7 @@ const planets = [
     radius: 0.8,
     distance: 15,
     speed: 0.007,
-    material: venusMasterial,
+    material: venusMaterial,
     moons:[]
   },
   {
@@ -95,6 +97,30 @@ const planets = [
   }
 ];
 
+const planetMeshes = planets.map((planet) => {
+  // create the mesh
+  const planetMesh = new THREE.Mesh(
+    sphereGeometry, 
+    planet.material);
+  // set the scale
+  planetMesh.scale.setScalar(planet.radius);
+  // set the position
+  planetMesh.position.x = planet.distance;
+  // add the mesh to the scene
+  scene.add(planetMesh);
+  // add the moon meshes
+  planet.moons.forEach((moon) => {
+    const moonMesh = new THREE.Mesh(sphereGeometry,moonMaterial)
+    moonMesh.scale.setScalar(moon.radius);
+    moonMesh.position.x = moon.distance;
+    planetMesh.add(moonMesh);
+  })
+  return planetMesh;
+  
+}
+);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+scene.add(ambientLight);
 
 // initialize the camera
 const camera = new THREE.PerspectiveCamera(
