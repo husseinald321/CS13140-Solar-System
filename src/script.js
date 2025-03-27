@@ -155,7 +155,17 @@ window.addEventListener("resize", () => {
 
 // render loop
 const renderloop = () => {
-  
+  planetMeshes.forEach((planetMesh, index) => {
+    planetMesh.rotation.y += planets[index].speed
+    planetMesh.position.x = Math.cos(planetMesh.rotation.y) * planets[index].distance;
+    planetMesh.position.z = Math.sin(planetMesh.rotation.y) * planets[index].distance;
+    // planetMesh.children.forEach((moonMesh, moonIndex) => {
+      
+    // })
+
+
+    
+  });
 
 
 
