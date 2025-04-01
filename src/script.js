@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 import * as dat from "dat.gui";
 
 // ------------------------------
@@ -18,6 +19,43 @@ const venusTexture = textureLoader.load("/textures/2k_venus_surface.jpg");
 const earthTexture = textureLoader.load("/textures/2k_earth_daymap.jpg");
 const marsTexture = textureLoader.load("/textures/2k_mars.jpg");
 const moonTexture = textureLoader.load("/textures/2k_moon.jpg");
+
+//space ship
+
+let spaceshipscene = 0;
+const loader = new OBJLoader();
+const spaceshipTexture = textureLoader.load("/shiptextures/Rising_Star_Hull_baseColor.jpg");
+const spaceshipMaterial = new THREE.MeshBasicMaterial({ map: spaceshipTexture });
+let spaceship;
+loader.load(
+  '/obj/Rising Star_export.obj', 
+
+  function (object) {
+    spaceship = object;
+    //scene.add(spaceship); // Add the object to the scene
+    spaceship.position.set(10, 0, 0); // Set position if needed
+    spaceship.scale.set(0.005, 0.005, 0.005); // Scale if needed
+    spaceship.traverse((child) => {
+      if (child.isMesh) {
+        child.material = spaceshipMaterial;
+
+        
+      }
+    });
+  },
+  
+  function (xhr) {
+    console.log((xhr.loaded / xhr.total) * 100 + '% loaded'); // Progress log
+  },
+  function (error) {
+    console.error('Error loading OBJ:', error);
+  }
+);
+
+
+
+
+
 
 // ------------------------------
 // Materials
@@ -218,7 +256,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 const controls = new OrbitControls(camera, canvasEl);
 controls.enableDamping = true;
 controls.maxDistance = 200;
-controls.minDistance = 20;
+controls.minDistance = 1;
 
 window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
@@ -413,9 +451,51 @@ function resetScene() {
   controls.enabled = true;
   camera.fov = 20;
   camera.updateProjectionMatrix();
+
+  //remove spaceship
+  scene.remove(spaceship);
 }
 const resetParams = { reset: resetScene };
 gui.add(resetParams, "reset").name("Reset Scene");
+
+
+function spaceshipScene() {
+
+
+  spaceshipscene = 1;
+  scene.add(spaceship);
+
+
+const sposition = new THREE.Vector3();
+
+
+
+const earthIndex = planetsData.findIndex(planet => planet.name === "Earth");
+
+// Get Earth's mesh from planetMeshes
+const earthMesh = planetMeshes[earthIndex];
+
+// Get Earth's position
+const earthPosition = earthMesh.position;
+//console.log("Earth Position:", earthPosition);
+
+  //planetsData[2].getWorldPosition(eposition);
+  
+  spaceship.position.set(earthPosition.x,earthPosition.y,earthPosition.z);
+  spaceship.rotation.y += -90;
+   spaceship.getWorldPosition(sposition);
+  controls.target.copy(sposition);
+  controls.update();
+  paramsGUI.viewMode = "Orbital";
+
+}
+const spaceshipParams = { spaceship: spaceshipScene};
+gui.add(spaceshipParams, "spaceship").name("spaceship Scene");
+
+
+
+
+
 
 // ------------------------------
 // Missile GUI Buttons
@@ -458,6 +538,9 @@ const expansionSpeed = 5; // units per second for debris field expansion.
 const renderloop = () => {
   const delta = clock.getDelta();
   createAsteroidBelt();
+
+
+
 
   // Animate planet orbits.
   planetMeshes.forEach((planetMesh, index) => {
@@ -518,6 +601,7 @@ const renderloop = () => {
     }
   }
 
+ 
   // Update missiles.
   for (let i = missiles.length - 1; i >= 0; i--) {
     const missileObj = missiles[i];
@@ -594,6 +678,15 @@ const renderloop = () => {
       camera.updateProjectionMatrix();
     }
   }
+
+
+ 
+
+  
+
+  
+
+
   // If viewMode is "Orbital", OrbitControls handle the camera.
 
   controls.update();
